@@ -118,7 +118,8 @@ endfunction
 function ret = biseccion(f,a,b,e)
   ai = a;
   bi = b;
-  while (abs(((bi - ai)/2)/((ai + bi) / 2)) > (e/100))
+  error = abs(((bi - ai)/2)/((ai + bi) / 2));
+  while (error > (e/100))
   #while  (((bi - ai)/2) > e)
     m = (ai + bi)/2;
     if (f(m) == 0)
@@ -130,28 +131,52 @@ function ret = biseccion(f,a,b,e)
     else
       bi = m;
     endif
+    error = abs(((bi - ai)/2)/((ai + bi) / 2));
+    printf("error: %.32d\n", error);
+    printf("a: %.32d\n", ai);
+    printf("b: %.32d\n", bi);
   endwhile
   ret = (ai + bi) / 2;
 endfunction
 
 function ret = puntofijo(f, x0, e)
   xi = x0;
-  while (abs(((xi - f(xi)) - xi)/(xi - f(xi))) > e)
+  error = abs(((xi - f(xi)) - xi)/(xi - f(xi)));
+  while (error > e)
     xi = xi - f(xi);
+    error = abs(((xi - f(xi)) - xi)/(xi - f(xi)));
+    printf("error: %.32d\n", error);
+    printf("x: %.32d\n", xi);
   endwhile
   ret = xi;
 endfunction
 
-#biseccion(@VANF, 0.05, 0.06, 5)
-#biseccion(@VANF, 0.0563, 0.0564, 5)
-#biseccion(@VANF, 0.05635, 0.05646, 5)
+function ret = secante(f, x0, x1, e)
+  xi = x0;
+  xi1 = x1;
+  error = abs((xi1 - xi)/(xi1));
+  while (error > e)
+    temp = xi1;
+    #xi1 = xi1 + ((f(xi1) - xi1)/(1 - ((f(xi1) - f(xi))/(xi1 - xi))));
+    xi1 = xi1 - (f(xi1)*((xi1 - xi)/(f(xi1) - f(xi))));
+    xi = temp;
+    error = abs((xi1 - xi)/(xi1));
+    printf("error: %.32d\n", error);
+    printf("x n: %.32d\n", xi);
+    printf("x n+1: %.32d\n", xi1);
+  endwhile
+  ret = xi1;
+endfunction
+
+#biseccion(@VANF, 0.054, 0.055, 5)
 #biseccion(@VANF, 0.05, 0.06, 1e-3)
 #puntofijo(@VANF, 0.0545, 0.001) 
+#secante(@VANF, 0.0545, 0.05475, 0.001) 
+#printf("valor: %.32d\n", a)
 
-
-
-
-
+function ret = fx(x)
+  ret = (x**2/4) - sin(x);
+endfunction
 
 
 
